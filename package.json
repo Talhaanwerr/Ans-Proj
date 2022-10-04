@@ -18,6 +18,11 @@
   "homepage": "https://github.com/Talhaanwerr/Ans-Proj#readme",
   "dependencies": {
     "express": "^4.18.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.23.2"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.5.1"
   }
 }
