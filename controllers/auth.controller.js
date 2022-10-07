@@ -47,52 +47,38 @@ exports.signup = async (req, res) => {
 
 
 exports.login = async (req, res) => {
-
-    // console.log(db.sequelize.config)
-    if (!req.body.email || !req.body.password) {
-        res.status(500).send({
+    const { email, password } = req.body;
+        
+    if (!email || !password) {
+        return res.status(400).json({
             status: "error",
             message: "email and password both fields are required",
         });
     }
-    var user = await User.findOne({
-        where: {
-            email: req.body.email,
-        },
-        include: [
-            {
-                model: File,
-                as: "profile_picture",
-            },
-            {
-                model: UserProfile,
-            },
-        ],
+    let user = await User.findOne({ where: { email: email }
     });
     if (!user) {
-        return res.status(404).send({ message: "Invalid email or password." });
+        return res.status(404).send({ message: "Invalid Email or Password." });
     }
-    var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+    var passwordIsValid = bcrypt.compareSync(password, user.password);
 
     if (!passwordIsValid) {
-        return res.status(401).send({
-            accessToken: null,
-            message: "Invalid Password!",
-        });
+        return res.status(400).json({ errors: [{ message: "Invalid Email or Password..." }] })
     }
-    
-    var newUser = user;
+
+    var newUser = user.dataValues;
+    delete newUser.password
     
     var token = jwt.sign(
-        { id: user.id, role: user.Role.code },
-        process.env.TOKEN_SECRET,
+        newUser,
+        'privateKey',
         {
             expiresIn: 86400, // 24 hours
         }
     );
     res.status(200).send({
         user: newUser,
-        accessToken: token,
+        token,
     });
 };
 
