@@ -1,5 +1,6 @@
 'use strict';
 const { Model } = require('sequelize');
+const jwt = require('jsonwebtoken')
 const Joi = require('joi')
 
 module.exports = (sequelize, DataTypes) => {
@@ -201,17 +202,34 @@ module.exports = (sequelize, DataTypes) => {
   return User;
 };
 
-exports.validateUser = (user) => {
+module.exports.validateUser = (user) => {
   const validator = Joi.object().keys({
-    firstName: Joi.string().required().label("First Name"),
-    lastName: Joi.string().required().label('Last Name'),
+    userName: Joi.string().required().label("User Name"),
+    fullName: Joi.string().required().label('Full Name'),
     email: Joi.string().email().required().label('Email'),
-    role: Joi.string().label("Role"),
     password: Joi.string().required().label('Password'),
-    phone: Joi.string().optional().label('Phone'),
-    company: Joi.string().optional().label('Company'),
+    dob: Joi.string().required().label('Date of Birth'),
+    country: Joi.string().required().label('Country'),
+    division: Joi.string().required().label('Division'),
+    team: Joi.string().required().label('Team'),
+    level: Joi.string().required().label('Level'),
+    season: Joi.string().required().label('Season'),
+    position: Joi.string().required().label('Position'),
+    goal: Joi.string().required().label('Goal'),
+    numberOfplayedMatches: Joi.string().required().label('Number Of PlayedMatches'),
+    yellowCard: Joi.string().required().label('Yellow Card'),
+    redCard: Joi.string().required().label('Red Card'),
+    height: Joi.string().optional().label('Height'),
+    weight: Joi.string().optional().label('Weight'),
   });
   return validator.validate(user, { abortEarly: false, });
+}
+
+module.exports.generateAuthToken = (user) => {
+  const userObj = user.dataValues
+  delete userObj.password
+  const token = jwt.sign(userObj, 'privateKey');
+  return { userObj, token }
 }
 
 // exports.validateUser = validateUser

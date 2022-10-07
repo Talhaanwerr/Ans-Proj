@@ -3,7 +3,7 @@ const db = require("../models");
 // const randomstring = require("randomstring");
 // const Code = db.Code;
 const User = db.User;
-const {validateUser} = require('../models/user')
+const { validateUser, generateAuthToken } = require('../models/user')
 // const UserProfile = db.userProfile;
 
 // const Op = db.Sequelize.Op;
@@ -16,28 +16,30 @@ const saltRounds = 10;
 // Create and Save a new User
 exports.signup = async (req, res) => {
     
-    console.log("req: ", req.body)
-    // const { error } = validateUser(req.body)
-    // if (error) {
-    //     return res.status(400).json({ error: error.details });
-    // }
+    const { error } = validateUser(req.body)
+    if (error) {
+        return res.status(400).json({ error: error.details });
+    }
     try {
-        // res.send(req.body)
-        // let isUser = await Users.exists().where({ email });
-        // if (isUser) {
-        //     return res.status(400).json({ errors: [{ message: "Email already exists" }] });
-        // }
+        let isUser = await User.count({
+            where: {
+                email: req.body.email,
+            }
+        })
+        if (isUser) {
+            return res.status(400).json({ errors: [{ message: "Email already exists" }] });
+        }
         let user = await User.create({
             ...req.body,
             password: bcrypt.hashSync(req.body.password, saltRounds)
-            })
+        })
 
-        // const { userObj, token } = user.generateAuthToken()
+        const { userObj, token } = generateAuthToken(user)
         
         // token should be send at header e.g: 
-        // return res.header('x-auth-token', token).status(201).json({ user, token });
+        // return res.header('x-auth-token', token).status(201).json({ user: userObj, token });
         // return res.send({ user: userObj, token, message: "User was registered successfully!" });
-        return res.status(201).json({ user: user, /*token,*/ message: "User was registered successfully!" });
+        return res.status(201).json({ user: userObj, token, message: "User was registered successfully!" });
     } catch (error) {
         return res.status(400).json({ errors: error });
     }
@@ -78,21 +80,9 @@ exports.login = async (req, res) => {
             message: "Invalid Password!",
         });
     }
-
-    // if (user.notaryProfile && !user.notaryProfile?.isApproved) {
-    //     return res.status(404).send({ message: "Your profile is underreview please contact admin." });
-    // }
+    
     var newUser = user;
-    if (user.userProfile) {
-        var primaryNotaryObj = await User.findOne({
-            where: user.userProfile.notaryId,
-        });
-        newUser = user.toJSON();
-        newUser.primaryNotary = `${primaryNotaryObj.firstName} ${primaryNotaryObj.lastName}`;
-        newUser.primaryNotaryId = primaryNotaryObj.id;
-    }
-
-
+    
     var token = jwt.sign(
         { id: user.id, role: user.Role.code },
         process.env.TOKEN_SECRET,
