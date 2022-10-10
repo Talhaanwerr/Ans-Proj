@@ -24,7 +24,7 @@ app.listen(port, () => console.log(`listen ${port}`))
 
 
 const connection = mysql.createConnection({
-  host: 'localhost',
+  host: '0.0.0.0',
   user: 'root',
   password: '12345678',
   database: 'ans-proj'
