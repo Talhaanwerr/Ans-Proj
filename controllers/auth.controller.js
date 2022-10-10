@@ -84,12 +84,16 @@ exports.login = async (req, res) => {
 
 exports.validateEmail = async (req, res) => {
     const { email } = req.body;
-        
-    let isUser = await User.findOne({ where: { email: email }});
-    if (isUser) {
-        return res.status(400).json({ errors: [{ message: "Email already exists" }] });
-    }
-    return res.status(200).send({ message: "success", code: 1 });
+    
+    try {
+        let isUser = await User.findOne({ where: { email: email }});
+        if (isUser) {
+            return res.status(400).json({ errors: [{ message: "Email already exists" }] });
+        }
+        return res.status(200).send({ message: "success", code: 1 });
+    } catch (error) {
+        return res.status(500).json({ errors: error });
+    }    
 };
 
 // Get a User by the id in the request
