@@ -24,10 +24,10 @@ app.listen(port, () => console.log(`listen ${port}`))
 
 
 const connection = mysql.createConnection({
-  host: '0.0.0.0',
-  user: 'root',
-  password: '12345678',
-  database: 'ans-proj'
+  host: "eu-cdbr-west-03.cleardb.net",//'localhost',
+  user: "bfd18fb2b227ed",//'root',
+  password: 'a1033099',//'12345678'
+  database: 'heroku_feb079c83e8dae0'//'ans-proj'
 });
 
 // console.log("connection: ", connection)
