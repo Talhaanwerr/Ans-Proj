@@ -23,18 +23,18 @@ app.get('*', (req, res) => res.send('404! This is an invalid URL.'));
 app.listen(port, () => console.log(`listen ${port}`))
 
 
-const connection = mysql.createConnection({
-  host: "eu-cdbr-west-03.cleardb.net",//'localhost',
-  user: "bfd18fb2b227ed",//'root',
-  password: 'a1033099',//'12345678'
-  database: 'heroku_feb079c83e8dae0'//'ans-proj'
-});
+// const connection = mysql.createConnection({
+//   host: "eu-cdbr-west-03.cleardb.net",//'localhost',
+//   user: "bfd18fb2b227ed",//'root',
+//   password: 'a1033099',//'12345678'
+//   database: 'heroku_feb079c83e8dae0'//'ans-proj'
+// });
 
-// console.log("connection: ", connection)
+// // console.log("connection: ", connection)
 
-connection.connect((err) => {
-  if (err) throw err;
-  console.log('Connected to MySQL Server!');
-});
+// connection.connect((err) => {
+//   if (err) throw err;
+//   console.log('Connected to MySQL Server!');
+// });
 
 
