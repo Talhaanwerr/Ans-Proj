@@ -1,16 +1,19 @@
-const mysql = require('mysql');
 const express = require("express")
 const cors = require('cors')
 const routes = require('./router/routes')
 var expressBusboy = require('express-busboy');
+// const dotenv = require('dotenv');
+
+// // const { S3Client } = require('@aws-sdk/client-s3');
+
+// dotenv.config()
 // import './src/config/db.config.js'
 // import routes from './src/router/routes.js'
-
 
 const app = express()
 const port = process.env.PORT || 5000
 
-expressBusboy.extend(app);
+// expressBusboy.extend(app);
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));

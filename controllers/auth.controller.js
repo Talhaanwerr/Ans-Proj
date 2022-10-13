@@ -84,7 +84,12 @@ exports.login = async (req, res) => {
 
 exports.validateEmail = async (req, res) => {
     const { email } = req.body;
-    
+    if(!email){
+        return res.status(400).json({
+            status: "error",
+            message: "email is required",
+        });
+    }
     try {
         let isUser = await User.findOne({ where: { email: email }});
         if (isUser) {

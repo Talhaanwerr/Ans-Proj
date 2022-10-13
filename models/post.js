@@ -80,7 +80,8 @@ module.exports.validatePost = (post) => {
         // userId: Joi.number().required().label("User Id"),
         title: Joi.string().required().label('Title'),
         description: Joi.string().required().label('Description'),
-        image: Joi.string().required().label('Image'),
+        // image: Joi.string().required().label('Image'),
+        // image2: Joi.optional().label("Image2")
     });
     return validator.validate(post, { abortEarly: false, });
   }

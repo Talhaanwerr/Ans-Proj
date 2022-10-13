@@ -1,11 +1,14 @@
 const db = require("../models");
 const Post = db.Post;
 const User = db.User
-const { validatePost } = require('../models/post')
+const { validatePost } = require('../models/post');
+const { saveFileToS3, getFileFromS3 } = require("../services/fileUploadService");
 
 
 // Create and Save a new Post
 exports.create = async (req, res) => {
+
+    const [ response, filename ] = await saveFileToS3(req.file)
     
     const { error } = validatePost(req.body)
     if (error) {
@@ -14,7 +17,8 @@ exports.create = async (req, res) => {
     try {
         const post = await Post.create({
             ...req.body,
-            userId: req.user.id
+            userId: req.user.id,
+            image: filename
         })
         return res.status(201).json({ post });
     } catch (error) {
@@ -31,6 +35,11 @@ exports.getAll = async (req, res) => {
                 //   ]
             })
             // .populate("client personnel", '-password');
+        
+        for (const post of posts) {
+            const url = await getFileFromS3(post.image)
+            post.image = url
+        }
 
         return res.status(200).json({ posts });
     } catch (error) {
