@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const multer = require('multer')
-const { create, getAll, getById, deleteById, updateById } = require('../controllers/post.controller')
+const { create, getAll, getById, deleteById, updateById, likePost, getLikesByPost } = require('../controllers/post.controller')
 const authenticateToken = require('../middleware/authenticate.middleware')
 
 // multer.diskStorage
@@ -24,6 +24,9 @@ router.get('/', authenticateToken, getAll);
 router.get('/:id', authenticateToken, getById);
 router.delete('/:id', authenticateToken, deleteById);
 router.patch('/:id', authenticateToken, updateById);
+
+router.post('/like/:id', authenticateToken, likePost);
+router.get('/likes/:id', authenticateToken, getLikesByPost);
 
 
 

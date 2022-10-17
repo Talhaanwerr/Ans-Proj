@@ -3,20 +3,29 @@ const cors = require('cors')
 const routes = require('./router/routes')
 var expressBusboy = require('express-busboy');
 // const dotenv = require('dotenv');
+var bodyParser = require('body-parser')
+const formidable = require('express-formidable');
 
+const app = express()
+
+// expressBusboy.extend(app);
+app.use(cors())
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json())
+// app.use(bodyParser.urlencoded({ extended: true }))
+// app.use(bodyParser.json())
+//  //parse application/x-www-form-urlencoded
+// // // parse application/json
 // // const { S3Client } = require('@aws-sdk/client-s3');
 
 // dotenv.config()
 // import './src/config/db.config.js'
 // import routes from './src/router/routes.js'
 
-const app = express()
 const port = process.env.PORT || 5000
 
-// expressBusboy.extend(app);
-app.use(cors())
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }));
+
+// app.use(formidable());
 
 app.use('/api', routes)
 app.route('/').get((req, res) => res.send("Application is Running..."))

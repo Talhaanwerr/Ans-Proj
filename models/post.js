@@ -12,28 +12,21 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Post.belongsTo(models.User, {
-        as: "user",
-        foreignKey: {
-          name: "userId",
-          allowNull: false,
-        },
+        foreignKey: "userId",
+        as: "user"
       });
 
-    //   Post.hasMany(models.Signer, {
-    //     foreignKey: {
-    //       name: "PostId",
-    //       allowNull: false,
-    //     },
-    //   });
-      
-        }
+      Post.hasMany(models.Likes, {
+        foreignKey: "PostId"
+      });
+    }
   }
   Post.init(
     {
-      userId: {
-        allowNull: false,
-        type: DataTypes.INTEGER,
-      },
+      // userId: {
+      //   allowNull: false,
+      //   type: DataTypes.INTEGER,
+      // },
       title: {
         allowNull: false,
         type: DataTypes.STRING,
@@ -55,14 +48,8 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       image: {
-        allowNull: false,
-        type: DataTypes.STRING,
-        validate: {
-          notNull: true,
-          notEmpty: {
-            msg: "Please fill out the mandatory fields", //"Please enter First Name",
-          },
-        }
+        allowNull: true,
+        type: DataTypes.STRING
       }
     },
     {

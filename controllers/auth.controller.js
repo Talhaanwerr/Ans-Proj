@@ -1,12 +1,6 @@
 const db = require("../models");
-// const nodemailer = require("nodemailer");
-// const randomstring = require("randomstring");
-// const Code = db.Code;
 const User = db.User;
 const { validateUser, generateAuthToken } = require('../models/user')
-// const UserProfile = db.userProfile;
-
-// const Op = db.Sequelize.Op;
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");

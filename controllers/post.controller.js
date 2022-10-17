@@ -1,6 +1,8 @@
+const { Sequelize } = require("../models");
 const db = require("../models");
 const Post = db.Post;
 const User = db.User
+const Likes = db.Likes
 const { validatePost } = require('../models/post');
 const { saveFileToS3, getFileFromS3 } = require("../services/fileUploadService");
 
@@ -8,37 +10,63 @@ const { saveFileToS3, getFileFromS3 } = require("../services/fileUploadService")
 // Create and Save a new Post
 exports.create = async (req, res) => {
 
-    const [ response, filename ] = await saveFileToS3(req.file)
-    
     const { error } = validatePost(req.body)
     if (error) {
         return res.status(400).json({ error: error.details });
     }
     try {
-        const post = await Post.create({
+        let postObj = {
             ...req.body,
-            userId: req.user.id,
-            image: filename
-        })
+            userId: req.user.id
+        }
+        if(req.file){
+            const [ response, filename ] = await saveFileToS3(req.file)
+            postObj.image = filename
+        }
+        const post = await Post.create(postObj)
+
         return res.status(201).json({ post });
     } catch (error) {
+        console.log("Error: ", error)
         return res.status(400).json({ errors: error.message });
     }
 };
 
 exports.getAll = async (req, res) => {
+
+    // let users = await User
+    //        .findAll({
+    //               include: [
+    //                 { 
+    //                     model: Post, 
+    //                     as: 'posts' ,
+    //                     // attributes: ["userName", "fullName"]
+    //                 }
+    //               ]
+    //         })
+    //         return res.status(200).json({ users });
     try {
         let posts = await Post
             .findAll({
-                //   include: [
-                //     [{ model: User }]
-                //   ]
+                  include: [
+                    { 
+                        model: User, 
+                        as: 'user' ,
+                        attributes: ["userName", "fullName"]
+                    },
+                    { 
+                        model: Likes,
+                        // as: 'user' ,
+                        attributes: ["id"]
+                    }
+                  ]
             })
-            // .populate("client personnel", '-password');
         
         for (const post of posts) {
-            const url = await getFileFromS3(post.image)
-            post.image = url
+            if(post.image){
+                const url = await getFileFromS3(post.image)
+                post.image = url
+            }
         }
 
         return res.status(200).json({ posts });
@@ -52,8 +80,21 @@ exports.getById = async (req, res) => {
     const { id } = req.params;
     try {
         let post = await Post
-            .findOne({ where: { id: id } })
-            // .populate("client personnel", '-password');
+            .findOne({
+                where: { id: id },
+                include: [
+                    { 
+                        model: User, 
+                        as: 'user' ,
+                        attributes: ["userName", "fullName"]
+                    },
+                    { 
+                        model: Likes,
+                        // as: 'user' ,
+                        attributes: ["id"]
+                    }
+                ]
+            })
         if (post == null) {
             return res.status(404).json({ errors: [{ message: "Post does not exist..." }] });
         }
@@ -110,4 +151,69 @@ exports.updateById = async (req, res) => {
         return res.status(400).json({ errors: error.message });
     }
 }
+
+
+exports.likePost = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        isPostExist = await Post.count({
+            where: { id }
+        })
+
+        if(!isPostExist){
+            return res.status(404).json({ errors: [{ message: "Post does not exist..." }] });
+        }
+
+        let like = await Likes.findOne({ where: { userId: req.user.id, postId: id } })
+        if(!like){
+            const likedPost = await Likes.create({
+                userId: req.user.id, 
+                postId: id
+            })
+            return res.status(200).json({ success: "Post liked successfully", likedPost });
+        }
+        else{
+            const dislikedPost = await Likes.destroy({ where: { userId: req.user.id, postId: id } })
+            return res.status(200).json({ success: "Post disliked successfully", dislikedPost });
+        }
+    
+    } catch (error) {
+        return res.status(400).json({ errors: error.message });
+    }
+}
+
+
+exports.getLikesByPost = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        isPostExist = await Post.count({
+            where: { id }
+        })
+
+        if(!isPostExist){
+            return res.status(404).json({ errors: [{ message: "Post does not exist..." }] });
+        }
+        let likes = await Likes.findAll({
+            where: {
+                postId: id
+            },
+            attributes: ["id"],
+            include: [
+                { 
+                    model: User, 
+                    as: 'user' ,
+                    attributes: ["userName", "fullName"]
+                }
+            ]
+        })
+
+        return res.status(200).json({ success: 1, likes });
+        
+    } catch (error) {
+        return res.status(400).json({ errors: error.message });
+    }
+}
+
 
